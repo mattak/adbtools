@@ -1,0 +1,23 @@
+#!/usr/bin/env ruby
+
+def peco(lines)
+  IO.popen('peco', 'r+') do |io|
+    lines.each { |line| io.puts line }
+    io.close_write
+    io.gets
+  end
+end
+
+MATCHED_PACKAGES = (ARGV.size >= 1) \
+  ? `adb shell pm list package`.gsub(/package:/, '').split(/\n/).select { |x| x =~ /#{ ARGV[0] }/ } \
+  : `adb shell pm list package`.gsub(/package:/, '').split(/\n/)
+
+unless MATCHED_PACKAGES.size >= 1
+  STDERR.puts "Not found any package."
+  exit 1
+end
+
+package = (MATCHED_PACKAGES.size > 1) ? peco(MATCHED_PACKAGES) : MATCHED_PACKAGES[0]
+package.chomp!
+puts package
+puts `adb uninstall #{ package }`

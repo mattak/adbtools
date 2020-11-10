@@ -1,0 +1,28 @@
+#!/bin/bash -e
+
+function _adb_install_devices() {
+    _APK=$1
+    for _device in $(adb devices | grep '\tdevice' | awk '{print $1}' | xargs echo)
+    do
+        echo adb -s $_device install -r $_APK
+        adb -s $_device install -r $_APK
+    done
+}
+
+if [ -z "$1" ]; then
+    _NUM_LINES=$(find . -type f -name '*.apk' | grep -v unaligned | wc -l | awk '{print $1}')
+
+    if [ $_NUM_LINES -eq 1 ]; then
+        _adb_install_devices $(find . -type f -name '*.apk' | grep -v unaligned)
+    else
+        _adb_install_devices $(find . -type f -name '*.apk' | grep -v unaligned | peco)
+    fi
+else
+    _NUM_LINES=$(find . -type f -name '*.apk' | grep -v unaligned | grep "$1" | wc -l | awk '{print $1}')
+
+    if [ $_NUM_LINES -eq 1 ]; then
+        _adb_install_devices $(find . -type f -name '*.apk' | grep -v unaligned | grep "$1")
+    else
+        _adb_install_devices $(find . -type f -name '*.apk' | grep -v unaligned | grep "$1" | peco)
+    fi
+fi
