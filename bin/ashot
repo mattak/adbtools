@@ -1,0 +1,15 @@
+#!/bin/sh
+
+SDCARD_PATH="/sdcard/screenshot.png"
+SDCARD_FILE=$(basename $SDCARD_PATH)
+TMP_FILE="/tmp/screenshot.png"
+
+if [ $# -ge 1 ]; then
+  TMP_FILE=$1
+fi
+
+adb shell screencap -p $SDCARD_PATH
+adb pull $SDCARD_PATH
+mv $SDCARD_FILE $TMP_FILE
+adb shell rm $SDCARD_PATH
+
